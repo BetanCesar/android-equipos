@@ -126,13 +126,17 @@ public class MainActivity extends Activity {
     }*/
 
     public void goBack(View view){
-        indexH -= 100;
-        marvelAdap(indexH);
+        if(indexH >= 0){
+            indexH -= 100;
+            marvelAdap(indexH);
+        }
     }
 
     public  void goNext(View view){
-        indexH += 100;
-        marvelAdap(indexH);
+        if(indexH <= 900){
+            indexH += 100;
+            marvelAdap(indexH);
+        }
     }
 
     private final String LOG_TAG = "MARVEL";
