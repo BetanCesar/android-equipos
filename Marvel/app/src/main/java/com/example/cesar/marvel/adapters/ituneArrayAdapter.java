@@ -30,14 +30,14 @@ public class ituneArrayAdapter extends ArrayAdapter<itune> {
     public View getView(int position, View convertView, ViewGroup parent) {
         itune ituneO = arrayList.get(position);
         if(convertView == null){
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.itunes_layout, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.marvel_layout, parent, false);
         }
         TextView collectionName = (TextView) convertView.findViewById(R.id.collection);
-        TextView trackName = (TextView) convertView.findViewById(R.id.trackName);
-        TextView trackPrice = (TextView) convertView.findViewById(R.id.trackPrice);
+        // TextView trackName = (TextView) convertView.findViewById(R.id.trackName);
+        // TextView trackPrice = (TextView) convertView.findViewById(R.id.trackPrice);
         collectionName.setText(ituneO.collectionName);
-        trackName.setText(ituneO.trackName);
-        trackPrice.setText(ituneO.trackPrice+"");
+        // trackName.setText(ituneO.trackName);
+        // trackPrice.setText(ituneO.trackPrice+"");
         return convertView;
     }
 }

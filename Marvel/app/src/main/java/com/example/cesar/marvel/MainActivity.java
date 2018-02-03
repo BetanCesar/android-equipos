@@ -6,11 +6,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +34,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.cesar.marvel.adapters.ituneArrayAdapter;
+import com.example.cesar.marvel.adapters.marvelAdapter;
+import com.example.cesar.marvel.pojo.MarvelDude;
 import com.example.cesar.marvel.pojo.itune;
 
 public class MainActivity extends Activity {
@@ -39,9 +43,10 @@ public class MainActivity extends Activity {
     private ArrayAdapter<String> arrayAdapter;
 
     private ListView listView;
-    private ituneArrayAdapter ituneArrayAdapter;
-    private EditText artistEdit;
+    // private ituneArrayAdapter ituneArrayAdapter;
+    // private EditText artistEdit;
     private ImageButton btnNext, btnBack;
+    private marvelAdapter marvelAdapterO;
     private int indexH;
 
     private RequestQueue nQueue;
@@ -61,12 +66,20 @@ public class MainActivity extends Activity {
     }
 
     public void marvelAdap(int i){
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, new ArrayList<String>());
-        listView.setAdapter(adapter);
+        marvelAdapterO = new marvelAdapter(this, R.layout.marvel_layout, new ArrayList<MarvelDude>());
+        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
+        listView.setAdapter(marvelAdapterO);
         // new MarvelJson(adapter).execute();
         nQueue = VolleySingleton.getInstance(this).getRequestQueue();
-        jsonMarvel(getMarvelString(i), adapter);
+        jsonMarvel(getMarvelString(i), marvelAdapterO);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                MarvelDude md = marvelAdapterO.getItem(i);
+                Toast.makeText(getApplicationContext(), md.id, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     // Async task
     /*public class ProcesaJson extends AsyncTask<String, Integer, ArrayList<itune>> {
@@ -115,7 +128,7 @@ public class MainActivity extends Activity {
 
         // Array adapter to give data to the list from te service
         ituneArrayAdapter = new ituneArrayAdapter(this,
-                R.layout.itunes_layout, new ArrayList<itune>());
+                R.layout.marvel_layout, new ArrayList<itune>());
         // Give the adapter to the list
         listView.setAdapter(ituneArrayAdapter);
         new ProcesaJson(ituneArrayAdapter).execute("https://itunes.apple.com/search?term=" + artist);
@@ -143,7 +156,7 @@ public class MainActivity extends Activity {
 
     private static char[] HEXCodes = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
-    private void jsonMarvel(String url, final ArrayAdapter<String> adapter){
+    private void jsonMarvel(String url, final marvelAdapter adapter){
         adapter.clear();
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,
                 url, null, new Response.Listener<JSONObject>() {
@@ -154,7 +167,14 @@ public class MainActivity extends Activity {
                     JSONArray jsonArray = data.getJSONArray("results");
                     for (int i = 0; i < jsonArray.length(); i++){
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        adapter.add(jsonObject.getString("name"));
+                        JSONObject thumbnail = jsonObject.getJSONObject("thumbnail");
+                        String stringBuffer = thumbnail.getString("path") + "/portrait_small" +
+                                "." + thumbnail.getString("extension");
+                        MarvelDude marvelDude = new MarvelDude();
+                        marvelDude.id = jsonObject.getLong("id")+"";
+                        marvelDude.name = jsonObject.getString("name");
+                        marvelDude.url = stringBuffer;
+                        adapter.add(marvelDude);
                     }
                     adapter.notifyDataSetChanged();
                 } catch (JSONException e) {
